@@ -1,0 +1,43 @@
+- hosts: localhost
+  vars:
+    droplet_size: s-1vcpu-1gb
+    droplet_region: lon1
+    droplet_image: ubuntu-20-04-x64
+    droplet_name: test
+  tasks:
+    - name: "add public ssh key to digitalocean account"
+      digital_ocean_sshkey:
+        name: "MacBook Pro"
+        ssh_pub_key: "{{lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
+      register: sshkey_result
+
+    - name: create a new droplet assigning the key
+      digital_ocean_droplet:
+        name: "{{ droplet_name }}"
+        size: "{{ droplet_size }}"
+        region: "{{ droplet_region }}"
+        image: "{{ droplet_image }}"
+        wait_timeout: 600
+        unique_name: yes
+        ssh_keys: ["{{ sshkey_result.data.ssh_key.id }}"]
+        state: present
+      register: droplet_result
+
+    - name: get IP address of new droplet
+      set_fact:
+        droplet_ip: "{{ (droplet_result.data.droplet.networks.v4 | selectattr('type', 'equalto', 'public')).0.ip_address }}"
+
+    - name: add hosts
+      add_host:
+        name: "{{ droplet_ip }}"
+        groups: "droplets"
+
+- hosts: droplets
+  remote_user: root
+
+  tasks:
+    - name: add the deploy user
+      ansible.builtin.user:
+        name: deploy
+        ssh_key_file: .ssh/id_rsa
