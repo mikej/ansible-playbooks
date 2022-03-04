@@ -37,6 +37,12 @@
   remote_user: root
 
   tasks:
+    - name: wait for port 22 to become available
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+      delegate_to: localhost
+
     - name: install packages
       apt:
         name:
