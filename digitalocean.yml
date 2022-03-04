@@ -12,7 +12,7 @@
         state: present
       register: sshkey_result
 
-    - name: create a new droplet assigning the key
+    - name: create droplet
       digital_ocean_droplet:
         name: "{{ droplet_name }}"
         size: "{{ droplet_size }}"
