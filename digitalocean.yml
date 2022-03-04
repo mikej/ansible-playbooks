@@ -28,6 +28,11 @@
       set_fact:
         droplet_ip: "{{ (droplet_result.data.droplet.networks.v4 | selectattr('type', 'equalto', 'public')).0.ip_address }}"
 
+    - name: wait for port 22 to become available on droplet
+      wait_for:
+        host: "{{ droplet_ip }}"
+        port: 22
+
     - name: add hosts
       add_host:
         name: "{{ droplet_ip }}"
@@ -37,14 +42,7 @@
   remote_user: root
   vars:
     app_user: deploy
-
   tasks:
-    - name: wait for port 22 to become available
-      wait_for:
-        host: "{{ inventory_hostname }}"
-        port: 22
-      delegate_to: localhost
-
     - name: install packages
       apt:
         name:
