@@ -35,6 +35,8 @@
 
 - hosts: droplets
   remote_user: root
+  vars:
+    app_user: deploy
 
   tasks:
     - name: wait for port 22 to become available
@@ -49,9 +51,52 @@
           - nginx
           - postgresql
           - postgresql-contrib
+          - git
         update_cache: true
 
     - name: add the deploy user
       ansible.builtin.user:
-        name: deploy
+        name: "{{ app_user }}"
         ssh_key_file: .ssh/id_rsa
+        shell: /bin/bash
+
+    - name: Install dependencies for compiling Ruby
+      apt: name={{ item }}
+      with_items:
+        - autoconf
+        - bison
+        - build-essential
+        - libssl-dev
+        - libyaml-dev
+        - libreadline6-dev
+        - zlib1g-dev
+        - libncurses5-dev
+        - libffi-dev
+        - libgdbm6
+        - libgdbm-dev
+
+    - name: clone rbenv repository
+      git: repo=https://github.com/rbenv/rbenv.git
+        dest=~{{ app_user }}/.rbenv
+        update=no
+
+    - name: set correct owner and group on rbenv
+      file: path=~{{ app_user }}/.rbenv
+        owner={{ app_user }}
+        group={{ app_user }}
+        recurse=yes
+
+    - name: install rbenv loader script
+      copy: src=rbenv.sh
+        dest=/etc/profile.d/rbenv.sh
+
+    - name: clone ruby-build, installed as rbenv plugin
+      git: repo=https://github.com/rbenv/ruby-build.git
+        dest=~{{ app_user }}/.rbenv/plugins/ruby-build
+        update=no
+
+    - name: set correct owner and group
+      file: path=~{{ app_user }}/.rbenv/plugins/ruby-build
+        owner={{ app_user }}
+        group={{ app_user }}
+        recurse=yes
