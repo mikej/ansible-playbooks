@@ -37,6 +37,14 @@
   remote_user: root
 
   tasks:
+    - name: install packages
+      apt:
+        name:
+          - nginx
+          - postgresql
+          - postgresql-contrib
+        update_cache: true
+
     - name: add the deploy user
       ansible.builtin.user:
         name: deploy
