@@ -58,7 +58,7 @@
         ssh_key_file: .ssh/id_rsa
         shell: /bin/bash
 
-    - name: Install dependencies for compiling Ruby
+    - name: Install dependencies for compiling Ruby and gems
       apt: name={{ item }}
       with_items:
         - autoconf
@@ -72,6 +72,7 @@
         - libffi-dev
         - libgdbm6
         - libgdbm-dev
+        - libpq-dev
 
     - name: clone rbenv repository
       git: repo=https://github.com/rbenv/rbenv.git
