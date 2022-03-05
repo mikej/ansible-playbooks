@@ -98,3 +98,23 @@
         owner={{ app_user }}
         group={{ app_user }}
         recurse=yes
+
+    - name: clone nodenv repo
+      git:
+        repo: https://github.com/nodenv/nodenv.git
+        dest: ~{{ app_user }}/.nodenv
+
+    - name: set correct owner and gorup on nodenv
+      file: path=~{{ app_user }}/.nodenv
+        owner={{ app_user }}
+        group={{ app_user }}
+        recurse=yes
+
+    - name: install nodenv loader script
+      copy: src=nodenv.sh
+        dest=/etc/profile.d/nodenv.sh
+
+    - name: install node-build, installed as nodenv plugin
+      git:
+        repo: https://github.com/nodenv/node-build.git
+        dest: "~{{ app_user }}/.nodenv/plugins/node-build"
