@@ -93,7 +93,7 @@
         dest=~{{ app_user }}/.rbenv/plugins/ruby-build
         update=no
 
-    - name: set correct owner and group
+    - name: set correct owner and group on ruby-build
       file: path=~{{ app_user }}/.rbenv/plugins/ruby-build
         owner={{ app_user }}
         group={{ app_user }}
