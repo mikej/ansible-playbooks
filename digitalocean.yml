@@ -100,6 +100,11 @@
         group={{ app_user }}
         recurse=yes
 
+    - name: close rbenv-vars, installed as rbenv plugin
+      git: repo=https://github.com/rbenv/rbenv-vars.git
+        dest=~{{ app_user }}/.rbenv/plugins/rbenv-vars
+        update=no
+
     - name: clone nodenv repo
       git:
         repo: https://github.com/nodenv/nodenv.git
